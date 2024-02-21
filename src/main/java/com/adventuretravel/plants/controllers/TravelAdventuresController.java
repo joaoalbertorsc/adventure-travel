@@ -1,57 +1,71 @@
 package com.adventuretravel.plants.controllers;
 
 import com.adventuretravel.plants.entities.Adventure;
-import com.adventuretravel.plants.service.AdventureService;
+import com.adventuretravel.plants.repositories.AdventureRepository;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/traveladventures")
 public class TravelAdventuresController {
 
-    private final AdventureService adventureService;
-    public TravelAdventuresController(AdventureService adventureServ) {
-        this.adventureService = adventureServ;
+    private final AdventureRepository adventureRepository;
+
+    public TravelAdventuresController(AdventureRepository adventureRepo) {
+        this.adventureRepository = adventureRepo;
     }
+
     @GetMapping()
     public Iterable<Adventure> getAllAdventures(){
-        return adventureService.getAllAdventures();
+        Iterable<Adventure> adventures = adventureRepository.findAll();
+        return adventures;
     }
     @GetMapping("/bycountry/{country}")
     public List<Adventure> getAdventuresByCountry(@PathVariable ("country") String country){
-        if (country != null){
-            return adventureService.getAdventureByCountry(country);
-        }else {
-            return new ArrayList<>();
+        List<Adventure> adventuresByCountry = new ArrayList<>();
+        for(Adventure adventure: adventureRepository.findAll()){
+            if(adventure.getCountry().equals(country)){
+                adventuresByCountry.add(adventure);
+            }
         }
+        return adventuresByCountry;
     }
 
     @GetMapping("/traveladventures/bystate")
     public List<Adventure> getAdventureByState(@RequestParam(name = "state") String state){
-        if (state != null){
-            return adventureService.getAdventureByState(state);
-        }else {
-            return new ArrayList<>();
+        List<Adventure> adventuresByState = new ArrayList<>();
+        for(Adventure adventure: adventureRepository.findAll()){
+            if(adventure.getState().equals(state)){
+                adventuresByState.add(adventure);
+            }
         }
+        return adventuresByState;
     }
-
-    @GetMapping("/traveladventures/{id}")
-    public Adventure getAdventureById(@PathVariable("id") Integer id){
-        return adventureService.getAdventureById(id);
-    }
-
     @PostMapping("/traveladventures")
     public void saveAdventure(@RequestBody Adventure adventure){
-        if (adventure != null){
-            adventureService.saveAdventure(adventure);
-        }else {
-            throw new NullPointerException("Invalid Adventure. Try Again.");
+        adventureRepository.save(adventure);
+    }
+    @PutMapping("/traveladventures/{id}")
+    public Adventure getAdventureById(@PathVariable("id") int id, @RequestBody Adventure adventure){
+        Optional<Adventure> adventureOptional = this.adventureRepository.findById(id);
+        if(!adventureOptional.isPresent()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Adventure not found with id: " + id);
         }
+        Adventure adv = adventureOptional.get();
+        adv.setBlogCompleted(true);
+        return adv;
     }
     @DeleteMapping("/traveladventures/{id}")
-    public void deleteAdventureById(@PathVariable("id") Integer id){
-        adventureService.deleteAdventureById(id);
+    public void deleteAdventureById(@PathVariable("id") int id){
+        Optional<Adventure> adventureOptional = this.adventureRepository.findById(id);
+        if(!adventureOptional.isPresent()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Adventure not found with id: " + id);
+        }
+        Adventure adv = adventureOptional.get();
+        adventureRepository.delete(adv);
     }
 }
