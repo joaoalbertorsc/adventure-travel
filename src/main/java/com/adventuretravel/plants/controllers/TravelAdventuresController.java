@@ -15,10 +15,12 @@ public class TravelAdventuresController {
     public TravelAdventuresController(AdventureService adventureServ) {
         this.adventureService = adventureServ;
     }
+
     @GetMapping()
     public Iterable<Adventure> getAllAdventures(){
         return adventureService.getAllAdventures();
     }
+
     @GetMapping("/bycountry/{country}")
     public List<Adventure> getAdventuresByCountry(@PathVariable ("country") String country){
         if (country != null){
@@ -28,7 +30,7 @@ public class TravelAdventuresController {
         }
     }
 
-    @GetMapping("/traveladventures/bystate")
+    @GetMapping("/bystate")
     public List<Adventure> getAdventureByState(@RequestParam(name = "state") String state){
         if (state != null){
             return adventureService.getAdventureByState(state);
@@ -37,12 +39,12 @@ public class TravelAdventuresController {
         }
     }
 
-    @GetMapping("/traveladventures/{id}")
+    @GetMapping("/{id}")
     public Adventure getAdventureById(@PathVariable("id") Integer id){
         return adventureService.getAdventureById(id);
     }
 
-    @PostMapping("/traveladventures")
+    @PostMapping()
     public void saveAdventure(@RequestBody Adventure adventure){
         if (adventure != null){
             adventureService.saveAdventure(adventure);
@@ -50,7 +52,7 @@ public class TravelAdventuresController {
             throw new NullPointerException("Invalid Adventure. Try Again.");
         }
     }
-    @DeleteMapping("/traveladventures/{id}")
+    @DeleteMapping("/{id}")
     public void deleteAdventureById(@PathVariable("id") Integer id){
         adventureService.deleteAdventureById(id);
     }
