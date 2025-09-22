@@ -22,10 +22,10 @@ public class AdventureService {
     }
 
     public List<Adventure> getAdventureByCountry(String country){
-        return adventureRepository.findByCountry(country);
+        return adventureRepository.findByCountryIgnoreCase(country);
     }
     public List<Adventure> getAdventureByState(String state){
-        return adventureRepository.findByState(state);
+        return adventureRepository.findByStateIgnoreCase(state);
     }
     public void saveAdventure(Adventure adventure){
         adventureRepository.save(adventure);
